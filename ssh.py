@@ -11,13 +11,13 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-def netmiko_dev(*,
+def netmiko_dev(device_ip: str,
+                creds_env_var: str = None,
+                *,
                 device_type: str,
-                device_ip: str,
                 username: str = None,
                 password: str = None,
                 enable_pass: str = "cisco",
-                env_var: str = None,
                 ) -> dict:
     """
     :param device_type: Netmiko platform, example "cisco_ios", "huawei", "cisco_ios_telnet"
@@ -26,11 +26,12 @@ def netmiko_dev(*,
     :param username:
     :param password:
     :param enable_pass:
-    :param env_var:
+    :param creds_env_var:
     :return: Dictionary with device connection parameters
     """
-    if env_var:
-        username, password, enable_pass = os.environ.get(env_var).split(':')
+    if creds_env_var:
+        logger.debug(f"{creds_env_var=}")
+        username, password, enable_pass = os.environ.get(creds_env_var).split(':')
     return {
         'device_type': device_type,
         'host': device_ip,
@@ -40,20 +41,22 @@ def netmiko_dev(*,
     }
 
 
-def cisco_ios_ssh(device_ip: str, **kwargs) -> dict:
+def cisco_ios_ssh(device_ip: str, creds_env_var: str = None, **kwargs) -> dict:
     """
     :param device_ip: ip address in textual representation, for example "192.168.1.1"
+    :param creds_env_var:
     :return: Dictionary with device connection parameters
     """
-    return netmiko_dev(device_type="cisco_ios", device_ip=device_ip, **kwargs)
+    return netmiko_dev(device_ip, creds_env_var=creds_env_var, device_type="cisco_ios", **kwargs)
 
 
-def cisco_ios_telnet(device_ip: str, **kwargs) -> dict:
+def cisco_ios_telnet(device_ip: str, creds_env_var: str = None, **kwargs) -> dict:
     """
     :param device_ip: ip address in textual representation, for example "192.168.1.1"
+    :param creds_env_var:
     :return: Dictionary with device connection parameters
     """
-    return netmiko_dev(device_type="cisco_ios_telnet", device_ip=device_ip, **kwargs)
+    return netmiko_dev(device_ip, creds_env_var=creds_env_var, device_type="cisco_ios_telnet", **kwargs)
 
 
 def get_config(device: dict, command: str) -> str:
@@ -73,6 +76,29 @@ def get_config(device: dict, command: str) -> str:
     except (
             NetmikoAuthenticationException,
             NetmikoTimeoutException,
+            ReadTimeout,
+            AttributeError,
+    ) as err:
+        logger.error(err.__str__)
+
+
+def get_config_ssh_or_telnet(device_ip: str, creds_env_var: str, command: str):
+    """
+    Send configuration to network device
+    :param device_ip: SQLAlchemy ORM object
+    :param creds_env_var:
+    :param command: List of configuration commands
+    :return:
+    """
+    logger.debug(f"Send {command=} to {device_ip=}")
+    try:
+        logger.debug(f"Trying SSH to {device_ip=}")
+        return get_config(cisco_ios_ssh(device_ip, creds_env_var=creds_env_var), command)
+    except NetmikoTimeoutException:
+        logger.debug(f"Trying Telnet to {device_ip=}")
+        return get_config(cisco_ios_telnet(device_ip, creds_env_var=creds_env_var), command)
+    except (
+            NetmikoAuthenticationException,
             ReadTimeout,
             AttributeError,
     ) as err:
@@ -101,7 +127,7 @@ def send_config(device: dict, commands: list) -> str:
         logger.error(err.__str__)
 
 
-def run_in_threads(worker, max_thread=60, *args):
+def run_in_threads(worker, *args, max_thread=60):
     """
     len(all_devices) == len(all_commands) = True
     :param worker: a function that will run in threads
