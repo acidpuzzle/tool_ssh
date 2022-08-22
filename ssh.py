@@ -103,6 +103,7 @@ def get_config_ssh_or_telnet(device_ip: str, creds_env_var: str, command: str):
             AttributeError,
     ) as err:
         logger.error(err.__str__)
+        return err.__str__
 
 
 def send_config(device: dict, commands: list) -> str:
@@ -127,7 +128,7 @@ def send_config(device: dict, commands: list) -> str:
         logger.error(err.__str__)
 
 
-def run_in_threads(worker, *args, max_thread=60):
+def run_in_threads(worker, *args, max_thread=50):
     """
     len(all_devices) == len(all_commands) = True
     :param worker: a function that will run in threads
