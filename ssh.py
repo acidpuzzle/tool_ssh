@@ -102,6 +102,7 @@ def get_config_ssh_or_telnet(device_ip: str, creds_env_var: str, command: str):
             ReadTimeout,
             AttributeError,
             WindowsError,
+            ValueError,
     ) as err:
         logger.error(err)
         return err.__str__
