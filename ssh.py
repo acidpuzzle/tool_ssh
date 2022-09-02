@@ -79,7 +79,7 @@ def get_config(device: dict, command: str) -> str:
             ReadTimeout,
             AttributeError,
     ) as err:
-        logger.error(err.__str__)
+        logger.error(err)
 
 
 def get_config_ssh_or_telnet(device_ip: str, creds_env_var: str, command: str):
@@ -101,8 +101,9 @@ def get_config_ssh_or_telnet(device_ip: str, creds_env_var: str, command: str):
             NetmikoAuthenticationException,
             ReadTimeout,
             AttributeError,
+            WindowsError,
     ) as err:
-        logger.error(err.__str__)
+        logger.error(err)
         return err.__str__
 
 
@@ -125,7 +126,7 @@ def send_config(device: dict, commands: list) -> str:
             ReadTimeout,
             AttributeError,
     ) as err:
-        logger.error(err.__str__)
+        logger.error(err)
 
 
 def run_in_threads(worker, *args, max_thread=50):
