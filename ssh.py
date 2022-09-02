@@ -60,6 +60,15 @@ def cisco_ios_telnet(device_ip: str, creds_env_var: str = None, **kwargs) -> dic
     return netmiko_dev(device_ip, creds_env_var=creds_env_var, device_type="cisco_ios_telnet", **kwargs)
 
 
+def huawei_device(device_ip: str, creds_env_var: str = None, **kwargs) -> dict:
+    """
+    :param device_ip: ip address in textual representation, for example "192.168.1.1"
+    :param creds_env_var:
+    :return: Dictionary with device connection parameters
+    """
+    return netmiko_dev(device_ip, creds_env_var=creds_env_var, device_type="huawei", **kwargs)
+
+
 def get_config(device: dict, command: str) -> str:
     """
     Get configuration from network device
