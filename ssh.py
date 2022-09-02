@@ -5,6 +5,7 @@ import os
 from netmiko import *
 from ipaddress import ip_address
 from concurrent.futures import ThreadPoolExecutor
+from paramiko.ssh_exception import SSHException
 
 
 logger = logging.getLogger(__name__)
@@ -77,6 +78,7 @@ def get_config(device: dict, command: str) -> str:
             NetmikoAuthenticationException,
             NetmikoTimeoutException,
             ReadTimeout,
+            SSHException,
             AttributeError,
             WindowsError,
             ValueError,
@@ -103,6 +105,7 @@ def get_config_ssh_or_telnet(device_ip: str, creds_env_var: str, command: str):
             NetmikoAuthenticationException,
             NetmikoTimeoutException,
             ReadTimeout,
+            SSHException,
             AttributeError,
             WindowsError,
             ValueError,
@@ -128,7 +131,10 @@ def send_config(device: dict, commands: list) -> str:
             NetmikoAuthenticationException,
             NetmikoTimeoutException,
             ReadTimeout,
+            SSHException,
             AttributeError,
+            WindowsError,
+            ValueError,
     ) as err:
         logger.error(err)
 
