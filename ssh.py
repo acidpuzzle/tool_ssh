@@ -78,6 +78,8 @@ def get_config(device: dict, command: str) -> str:
             NetmikoTimeoutException,
             ReadTimeout,
             AttributeError,
+            WindowsError,
+            ValueError,
     ) as err:
         logger.error(err)
 
@@ -99,6 +101,7 @@ def get_config_ssh_or_telnet(device_ip: str, creds_env_var: str, command: str):
         return get_config(cisco_ios_telnet(device_ip, creds_env_var=creds_env_var), command)
     except (
             NetmikoAuthenticationException,
+            NetmikoTimeoutException,
             ReadTimeout,
             AttributeError,
             WindowsError,
