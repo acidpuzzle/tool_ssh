@@ -30,7 +30,7 @@ def netmiko_dev(device_ip: str,
     :return: Dictionary with device connection parameters
     """
     if creds_env_var:
-        logger.debug(f"{creds_env_var=}")
+        logger.debug(f"{creds_env_var}")
         username, password, enable_pass = os.environ.get(creds_env_var).split(':')
     return {
         'device_type': device_type,
@@ -76,7 +76,7 @@ def get_config(device: dict, command: str) -> str:
     :param command: String, one `show` command
     :return:
     """
-    logger.debug(f"Send {command=} to {device['host']}")
+    logger.debug(f"Send {command} to {device['host']}")
     try:
         with ConnectHandler(**device) as ssh:
             out = ssh.send_command(command)
@@ -102,12 +102,12 @@ def get_config_ssh_or_telnet(device_ip: str, creds_env_var: str, command: str):
     :param command: List of configuration commands
     :return:
     """
-    logger.debug(f"Send {command=} to {device_ip=}")
+    logger.debug(f"Send {command} to {device_ip}")
     try:
-        logger.debug(f"Trying SSH to {device_ip=}")
+        logger.debug(f"Trying SSH to {device_ip}")
         return get_config(cisco_ios_ssh(device_ip, creds_env_var=creds_env_var), command)
     except NetmikoTimeoutException:
-        logger.debug(f"Trying Telnet to {device_ip=}")
+        logger.debug(f"Trying Telnet to {device_ip}")
         return get_config(cisco_ios_telnet(device_ip, creds_env_var=creds_env_var), command)
     except (
             NetmikoAuthenticationException,
@@ -129,7 +129,7 @@ def send_config(device: dict, commands: list) -> str:
     :param commands: List of configuration commands
     :return: None
     """
-    logger.debug(f"Send {commands=} to {ip_address}")
+    logger.debug(f"Send {commands} to {ip_address}")
     try:
         with ConnectHandler(**device) as ssh:
             out = ssh.send_config_set(commands)
