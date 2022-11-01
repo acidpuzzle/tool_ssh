@@ -119,7 +119,7 @@ def get_config_ssh_or_telnet(device_ip: str, creds_env_var: str, command: str):
             ValueError,
     ) as err:
         logger.error(err)
-        return err.__str__
+        return err
 
 
 def send_config(device: dict, commands: list) -> str:
